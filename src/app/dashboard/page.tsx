@@ -1,3 +1,4 @@
+import WidgetErrorBoundary from "@/components/WidgetErrorBoundary";
 import LazyWidget from "@/components/LazyWidget";
 import DiscussionsWidget from "@/components/DiscussionsWidget";
 import CommunityMetrics from "@/components/CommunityMetrics";
@@ -125,11 +126,12 @@ export default async function DashboardPage() {
   return (
     <DashboardSSEProvider>
       <div className="min-h-screen bg-[var(--background)] px-4 py-8 text-[var(--foreground)] transition-colors sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
-        <DashboardHeader />
+        <WidgetErrorBoundary>
+          <DashboardHeader />
+        </WidgetErrorBoundary>
 
         {/* Quick actions */}
         <div className="mt-8 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Left side actions */}
           <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
             <Link
               href="/wrapped"
@@ -144,7 +146,6 @@ export default async function DashboardPage() {
               Settings
             </Link>
           </div>
-          {/* Right side exports */}
           <div className="w-full sm:w-auto">
             <ExportButton />
           </div>
@@ -156,7 +157,9 @@ export default async function DashboardPage() {
 
         {/* Hero Section */}
         <section className="mt-8">
-          <TodayFocusHero userName={session.user?.name ?? null} />
+          <WidgetErrorBoundary>
+            <TodayFocusHero userName={session.user?.name ?? null} />
+          </WidgetErrorBoundary>
         </section>
 
         {/* 1. OVERVIEW SECTION */}
@@ -166,7 +169,9 @@ export default async function DashboardPage() {
             <h2 className="text-2xl font-bold tracking-tight">Overview</h2>
           </div>
           <div className="grid grid-cols-1 gap-6 w-full">
-            <WeeklySummaryCard />
+            <WidgetErrorBoundary>
+              <WeeklySummaryCard />
+            </WidgetErrorBoundary>
           </div>
         </div>
 
@@ -217,10 +222,14 @@ export default async function DashboardPage() {
         </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
             <div className="flex flex-col gap-6 w-full overflow-hidden">
-              <PersonalRecords />
+              <WidgetErrorBoundary>
+                <PersonalRecords />
+              </WidgetErrorBoundary>
             </div>
             <div className="flex flex-col gap-6 w-full h-full">
-              <AIMentorWidget />
+              <WidgetErrorBoundary>
+                <AIMentorWidget />
+              </WidgetErrorBoundary>
             </div>
           </div>
         </section>
@@ -231,14 +240,18 @@ export default async function DashboardPage() {
             <div className="h-8 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
             <h2 className="text-2xl font-bold tracking-tight">Activity & Coding</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-full">
             <div className="xl:col-span-2 flex flex-col gap-6 w-full overflow-hidden">
               <div className="w-full overflow-x-auto pb-2">
-                <ContributionGraph />
+                <WidgetErrorBoundary>
+                  <ContributionGraph />
+                </WidgetErrorBoundary>
               </div>
               <div className="w-full overflow-x-auto pb-2">
-                <ContributionHeatmap />
+                <LazyWidget fallback={<SkeletonCard />}>
+                  <ContributionHeatmap />
+                </LazyWidget>
               </div>
               <LazyWidget fallback={<SkeletonCard />}>
                 <RepoContributionDistribution />
@@ -251,9 +264,15 @@ export default async function DashboardPage() {
               </LazyWidget>
             </div>
             <div className="flex flex-col gap-6 w-full overflow-hidden">
-              <StreakTracker />
-              <LocalCodingTime />
-              <CodingTimeWidget />
+              <WidgetErrorBoundary>
+                <StreakTracker />
+              </WidgetErrorBoundary>
+              <WidgetErrorBoundary>
+                <LocalCodingTime />
+              </WidgetErrorBoundary>
+              <WidgetErrorBoundary>
+                <CodingTimeWidget />
+              </WidgetErrorBoundary>
               <LazyWidget fallback={<SkeletonCard />}>
                 <CommitTimeChart />
               </LazyWidget>
@@ -268,7 +287,6 @@ export default async function DashboardPage() {
             <h2 className="text-2xl font-bold tracking-tight">Analytics & Repositories</h2>
           </div>
 
-          {/* Repo Analytics Explorer spans full width */}
           <div className="w-full overflow-hidden">
             <LazyWidget fallback={<SkeletonCard />}>
               <RepoAnalyticsExplorer />
@@ -277,7 +295,9 @@ export default async function DashboardPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
             <div className="flex flex-col gap-6 w-full overflow-hidden">
-              <PRMetrics />
+              <WidgetErrorBoundary>
+                <PRMetrics />
+              </WidgetErrorBoundary>
               <LazyWidget fallback={<SkeletonCard />}>
                 <PRBreakdownChart />
               </LazyWidget>
@@ -289,7 +309,9 @@ export default async function DashboardPage() {
               </LazyWidget>
             </div>
             <div className="flex flex-col gap-6 w-full overflow-hidden">
-              <CommunityMetrics />
+              <WidgetErrorBoundary>
+                <CommunityMetrics />
+              </WidgetErrorBoundary>
               <LazyWidget fallback={<SkeletonCard />}>
                 <PinnedReposWidget />
               </LazyWidget>
@@ -315,7 +337,9 @@ export default async function DashboardPage() {
               <LazyWidget fallback={<SkeletonCard />}>
                 <IssueMetrics />
               </LazyWidget>
-              <GoalTracker />
+              <WidgetErrorBoundary>
+                <GoalTracker />
+              </WidgetErrorBoundary>
               <LazyWidget fallback={<SkeletonCard />}>
                 <RecentActivity />
               </LazyWidget>
