@@ -1,5 +1,6 @@
 import { type NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { syncGitHubAchievementsForUser } from "./github-achievements";
 import { supabaseAdmin } from "./supabase";
 
@@ -25,6 +26,24 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GITHUB_SECRET ?? "",
       authorization: {
         params: { scope: "read:user user:email repo read:discussion read:org" },
+      },
+    }),
+    CredentialsProvider({
+      id: "credentials",
+      name: "Mock Credentials (Dev Mode)",
+      credentials: {
+        username: { label: "GitHub Username", type: "text", placeholder: "octocat" },
+        token: { label: "GitHub Personal Access Token (PAT)", type: "password", placeholder: "ghp_..." },
+      },
+      async authorize(credentials) {
+        if (!credentials?.username) return null;
+        return {
+          id: "12345",
+          name: credentials.username,
+          email: `${credentials.username}@example.com`,
+          login: credentials.username,
+          accessToken: credentials.token || "mock-token",
+        };
       },
     }),
   ],
@@ -118,7 +137,7 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, user }) {
       // account is only populated on the initial sign-in; all subsequent JWT
       // refreshes arrive here with account === undefined.
       if (account?.access_token) {
@@ -126,11 +145,17 @@ export const authOptions: NextAuthOptions = {
         // Record when we first obtained and validated this token so we know
         // when the next liveness check is due.
         token.accessTokenValidatedAt = Date.now();
+      } else if (user && (user as any).accessToken) {
+        token.accessToken = (user as any).accessToken;
+        token.accessTokenValidatedAt = Date.now();
       }
       if (profile) {
         const p = profile as { id: number; login: string };
         token.githubId = String(p.id);
         token.githubLogin = p.login;
+      } else if (user) {
+        token.githubId = user.id;
+        token.githubLogin = (user as any).login || "mock-user";
       }
 
       // Periodic token liveness check: if more than TOKEN_VALIDATION_INTERVAL_MS

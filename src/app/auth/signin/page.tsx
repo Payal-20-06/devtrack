@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -110,6 +110,28 @@ function MouseSpotlight() {
 function SignInContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+  const [username, setUsername] = useState("");
+  const [token, setToken] = useState("");
+  const [isLocalhost, setIsLocalhost] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsLocalhost(
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+      );
+    }
+  }, []);
+
+  const handleCredentialsSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username) return;
+    signIn("credentials", {
+      username,
+      token,
+      callbackUrl: "/dashboard",
+    });
+  };
 
   // Clear the ?error= param from the URL immediately after reading it so
   // that refreshing the page or navigating back doesn't show a stale error
@@ -219,6 +241,55 @@ function SignInContent() {
         >
           Sign in with GitHub
         </button>
+
+        {isLocalhost && (
+          <div style={{ width: "100%", marginTop: 24, marginBottom: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 20 }}>
+              <div style={{ height: 1, flex: 1, backgroundColor: "var(--border)" }} />
+              <span style={{ fontFamily: MONO, fontSize: 11, color: "#9ca3af" }}>OR BYPASS</span>
+              <div style={{ height: 1, flex: 1, backgroundColor: "var(--border)" }} />
+            </div>
+
+            <form onSubmit={handleCredentialsSubmit} className="space-y-4 text-left">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] mb-1" style={{ fontFamily: MONO }}>
+                  GitHub Username
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. bhavyanjain3004"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 text-sm bg-[var(--control)] border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] text-[#e8e8e8]"
+                  style={{ fontFamily: MONO }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] mb-1" style={{ fontFamily: MONO }}>
+                  Personal Access Token (PAT)
+                </label>
+                <input
+                  type="password"
+                  placeholder="Optional (to sync real data)"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  className="w-full px-4 py-2 text-sm bg-[var(--control)] border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] text-[#e8e8e8]"
+                  style={{ fontFamily: MONO }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2.5 mt-2 text-sm font-semibold rounded-xl text-center bg-[var(--accent)] hover:opacity-90 transition-opacity text-white"
+                style={{ fontFamily: MONO }}
+              >
+                Sign In with Mock Credentials
+              </button>
+            </form>
+          </div>
+        )}
 
         <div
           style={{
