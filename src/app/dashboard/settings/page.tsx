@@ -699,7 +699,7 @@ function SettingsPageContent() {
                   type="text"
                   value={`${window.location.origin}/u/${settings.github_login}`}
                   readOnly
-                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:outline-none"
+                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)]"
                 />
                 <button
                   type="button"
@@ -732,7 +732,7 @@ function SettingsPageContent() {
               placeholder="Tell others about yourself..."
               rows={3}
               maxLength={BIO_MAX}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] resize-none"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] resize-none"
             />
 
             {/* Character counter */}
@@ -792,7 +792,7 @@ function SettingsPageContent() {
               maxLength={500}
               rows={5}
               placeholder="Write a short bio with **bold**, _italic_, `code`, or links."
-              className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-sm text-[var(--card-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+              className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
             />
 
             {showBioPreview && (
@@ -1041,7 +1041,7 @@ function SettingsPageContent() {
                 onChange={(e) => setRepoSearchQuery(e.target.value)}
                 placeholder="Type to search your repositories..."
                 aria-label="Search repositories to pin"
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] mb-4"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] mb-4"
               />
 
               {loadingRepos ? (
@@ -1147,7 +1147,7 @@ function SettingsPageContent() {
               value={webhookUrl ?? ""}
               onChange={(e) => setWebhookUrl(e.target.value || null)}
               placeholder="https://hooks.slack.com/services/... or https://discord.com/api/webhooks/..."
-              className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus:outline-none"
+              className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
             />
 
             <div className="mt-3 flex gap-2">
@@ -1297,7 +1297,7 @@ function SettingsPageContent() {
                   }}
                   placeholder={settings.has_wakatime_key ? "•••••••••••••••• (Configured)" : "Enter your Wakatime API key"}
                   autoComplete="new-password"
-                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
                 />
                 <button
                   type="button"
@@ -1342,7 +1342,7 @@ function SettingsPageContent() {
                     setIsDirty(true);
                   }}
                   placeholder="https://discord.com/api/webhooks/..."
-                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
                 />
               </div>
             </div>
@@ -1358,7 +1358,7 @@ function SettingsPageContent() {
                   setTimezone(e.target.value);
                   setIsDirty(true);
                 }}
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
               >
                 <option value="UTC">UTC</option>
                 <option value="America/New_York">Eastern Time (ET)</option>
