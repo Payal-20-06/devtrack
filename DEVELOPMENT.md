@@ -8,8 +8,8 @@ Everything you need to run DevTrack locally from scratch in under 10 minutes.
 
 | Tool | Version | Check |
 |------|---------|-------|
-| Node.js | >= 18 | `node -v` |
-| npm | >= 9 | `npm -v` |
+| Node.js | >= 20 | `node -v` |
+| pnpm | >= 9 | `pnpm -v` |
 | Git | any | `git --version` |
 
 You also need free accounts on:
@@ -24,7 +24,7 @@ You also need free accounts on:
 ```bash
 git clone https://github.com/Priyanshu-byte-coder/devtrack.git
 cd devtrack
-npm install
+pnpm install
 ```
 
 ---
@@ -110,7 +110,7 @@ openssl rand -base64 32
 ## 5. Run the dev server
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000). Click **Sign in with GitHub**.
@@ -236,14 +236,14 @@ All GitHub API calls use the signed-in user's OAuth token — stored in the sess
 
 | Command | What it does |
 |---------|-------------|
-| `npm run dev` | Start dev server at localhost:3000 |
-| `npm run build` | Production build |
-| `npm run lint` | ESLint |
-| `npm run type-check` | TypeScript compiler check (no emit) |
+| `pnpm dev` | Start dev server at localhost:3000 |
+| `pnpm build` | Production build |
+| `pnpm lint` | ESLint |
+| `pnpm type-check` | TypeScript compiler check (no emit) |
 
 Run lint and type-check before pushing:
 ```bash
-npm run lint && npm run type-check
+pnpm lint && pnpm type-check
 ```
 
 ---
@@ -346,12 +346,12 @@ On Windows PowerShell:
 Next.js reads `.env.local` only at startup. After any change, stop and restart:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 #### 5. Check the server console for the real error
 
-The browser only shows `error=github` — the actual error is printed to the **terminal running `npm run dev`**. Look for lines starting with `[next-auth]` or `signIn:`.
+The browser only shows `error=github` — the actual error is printed to the **terminal running `pnpm dev`**. Look for lines starting with `[next-auth]` or `signIn:`.
 
 ---
 
