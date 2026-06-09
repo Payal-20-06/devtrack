@@ -20,6 +20,9 @@ import { Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 
+import { useIsMobile } from "@/hooks/useIsMobile";
+
+
 type DashboardSyncContextValue = {
   lastSynced: Date | null;
 };
@@ -99,6 +102,8 @@ export default function DashboardHeader() {
 
   const [isNightOwl, setIsNightOwl] = useState<boolean>(false);
   const [isEarlyBird, setIsEarlyBird] = useState<boolean>(false);
+
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const computeCurrentGreeting = () => {
@@ -205,7 +210,7 @@ export default function DashboardHeader() {
     <header className="relative mb-8 overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)]/95 p-4 shadow-[var(--shadow-soft)] backdrop-blur-md transition-all duration-300 hover:shadow-[var(--shadow-medium)] sm:p-5 md:p-6">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/40 to-transparent" />
       <div className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-[var(--accent)]/10 blur-3xl" />
-      <div className="relative flex min-w-0 flex-col gap-5 md:flex-row md:items-end md:justify-between">
+      <div className="relative flex min-w-0  gap-5 items-end justify-between">
 
         {/* Left Section */}
         <div className="min-w-0 pr-12 md:pr-0">
@@ -276,28 +281,43 @@ export default function DashboardHeader() {
               </a>
             )}
 
-            <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--card-muted)]/50 p-2 shadow-sm backdrop-blur-sm">
-              <div className="transition-transform duration-200 hover:scale-[1.05]">
-                <KeyboardShortcuts />
-              </div>
 
-              <div className="transition-transform duration-200 hover:scale-[1.05]">
-                <NotificationBell />
-              </div>
+           <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--card-muted)]/50 p-2 shadow-sm backdrop-blur-sm">
+             <div className="transition-transform duration-200 hover:scale-[1.05]">
+               <KeyboardShortcuts />
+             </div>
 
-              <div className="transition-transform duration-200 hover:scale-[1.05]">
-                <UserAvatar />
-              </div>
+             <div className="transition-transform duration-200 hover:scale-[1.05]">
+               <NotificationBell />
+             </div>
 
-              <div className="transition-transform duration-200 hover:rotate-12">
-                <ThemeToggle />
-              </div>
+             <div className="transition-transform duration-200 hover:scale-[1.05]">
+               <UserAvatar />
+             </div>
 
-              <div className="transition-transform duration-200 hover:scale-[1.05]">
-                <SignOutButton />
-              </div>
-            </div>
-          </div>
+             <div className="transition-transform duration-200 hover:rotate-12">
+               <ThemeToggle />
+             </div>
+
+             <div className="transition-transform duration-200 hover:scale-[1.05]">
+               <SignOutButton />
+             </div>
+           </div>
+         </div>
+       </div>
+      
+           }
+             {/* Mobile hamburger button */}
+      
+{isMobile &&
+      <div className="flex flex-col md:flex-row justify-start items-start self-stretch">
+
+        <div className="transition-transform duration-200 hover:scale-[1.05]">
+              <SignOutButton />
+        </div>
+        <div className="flex flex-row">
+        <div className="transition-transform duration-200 hover:scale-[1.05]">
+          <NotificationBell />
         </div>
 
         {/* Mobile hamburger button */}
@@ -343,30 +363,33 @@ export default function DashboardHeader() {
           )}
         </Button>
       </div>
+     
+     
+    </div>
+
+  }
+       
+</div>
 
       {/* Mobile dropdown */}
       {menuOpen && (
-        <div className="mt-4 space-y-3 rounded-2xl border border-[var(--border)] bg-[var(--card-muted)]/70 p-4 shadow-sm backdrop-blur-sm sm:hidden">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="transition-transform duration-200 hover:scale-[1.05]">
+        <div className="mt-4 space-y-3 rounded-2xl border border-[var(--border)] bg-[var(--card-muted)]/70 p-4 shadow-sm backdrop-blur-sm ">
+          <div className="flex flex-col flex-wrap md:flex-row md:justify-evenly md:items-center">
+            <div className="transition-transform duration-200 hover:scale-[1.05] ">
               <KeyboardShortcuts />
             </div>
 
-            <div className="transition-transform duration-200 hover:scale-[1.05]">
-              <NotificationBell />
-            </div>
+            
 
             <div className="transition-transform duration-200 hover:scale-[1.05]">
               <UserAvatar />
             </div>
 
-            <div className="transition-transform duration-200 hover:rotate-12">
+            <div className="transition-transform duration-200 hover:rotate-12 ">
               <ThemeToggle />
             </div>
 
-            <div className="transition-transform duration-200 hover:scale-[1.05]">
-              <SignOutButton />
-            </div>
+            
           </div>
 
           {isPublic === true && session?.githubLogin && (
