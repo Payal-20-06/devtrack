@@ -276,7 +276,6 @@ describe("User Settings API Endpoints", () => {
         show_weekly_goals: false,
       });
       
-      // Verify update database query was called with the updates object
       expect(mockUpdate).toHaveBeenCalledWith({
         is_public: false,
         pinned_repos: ["repo-2", "repo-3"],

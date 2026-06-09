@@ -51,20 +51,47 @@ test("[API E2E] /api/metrics/streak returns 401 without a session", async ({
   expect([401, 302, 403]).toContain(res.status());
 });
 
-test("[API E2E] /api/metrics/contributions accepts valid session cookie", async ({
+test("[API E2E] /api/metrics/contributions returns 200 with valid session cookie", async ({
+  page,
   request,
 }) => {
   const sessionToken = await buildSessionCookie();
 
+  await page.context().addCookies([
+    {
+      name: "next-auth.session-token",
+      value: sessionToken,
+      domain: "127.0.0.1",
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: false,
+      expires: Math.floor(Date.now() / 1000) + 60 * 60,
+    },
+  ]);
+
+  // Setup session mock BEFORE making the request
+  await page.route("**/api/auth/session**", (route) =>
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        user: { name: "Playwright User", email: "playwright@devtrack.test" },
+        githubLogin: "playwright-user",
+        githubId: "99001",
+        accessToken: "mock-access-token",
+        expires: "2099-01-01T00:00:00.000Z",
+      }),
+    })
+  );
+
+  // Use request context with proper headers
   const res = await request.get("/api/metrics/contributions?days=7", {
     headers: {
       Cookie: `next-auth.session-token=${sessionToken}`,
     },
   });
 
-  // Session must be accepted; upstream GitHub may return 502 with the mock token.
-  expect(res.status()).not.toBe(401);
-  expect(res.headers()["content-type"] ?? "").toContain("application/json");
+  expect(res.status()).toBe(200);
 });
 
 test("[API E2E] /api/auth/session returns a JSON object", async ({
@@ -87,17 +114,42 @@ test("[API E2E] /api/goals POST without session returns 401 or 403", async ({
 });
 
 test("[API E2E] /api/metrics/contributions with days param returns valid JSON when authenticated", async ({
-  request,
+  page,
 }) => {
   const sessionToken = await buildSessionCookie();
 
-  const res = await request.get("/api/metrics/contributions?days=30", {
-    headers: {
-      Cookie: `next-auth.session-token=${sessionToken}`,
+  await page.context().addCookies([
+    {
+      name: "next-auth.session-token",
+      value: sessionToken,
+      domain: "127.0.0.1",
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: false,
+      expires: Math.floor(Date.now() / 1000) + 60 * 60,
     },
+  ]);
+
+  await page.route("**/api/auth/session**", (route) =>
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        user: { name: "Playwright User", email: "playwright@devtrack.test" },
+        githubLogin: "playwright-user",
+        githubId: "99001",
+        accessToken: "mock-access-token",
+        expires: "2099-01-01T00:00:00.000Z",
+      }),
+    })
+  );
+
+  const result = await page.evaluate(async () => {
+    const r = await fetch("/api/metrics/contributions?days=30");
+    const body = await r.json();
+    return { status: r.status, bodyType: typeof body };
   });
 
-  expect(res.status()).not.toBe(401);
-  const body = await res.json();
-  expect(typeof body).toBe("object");
+  expect(result.status).toBe(200);
+  expect(result.bodyType).toBe("object");
 });

@@ -46,8 +46,8 @@ export default function AppNavbar() {
   }, []);
 
   const isAuthenticated = status === "authenticated" && Boolean(session);
-  const isPublicProfileRoute = pathname.startsWith("/u/");
   const isDashboardRoute = pathname.startsWith("/dashboard");
+  const isPublicProfileRoute = pathname.startsWith("/u/");
   const identityLabel =
     session?.githubLogin ?? session?.user?.name ?? session?.user?.email ?? "user";
 
@@ -56,6 +56,9 @@ export default function AppNavbar() {
       return [
         { href: "/dashboard", label: "Overview" },
         { href: "/dashboard/career-intelligence", label: "Resume" },
+        { href: "/dashboard#streaks", label: "Activity" },
+        { href: "/dashboard#pull-requests", label: "Analytics" },
+        { href: "/dashboard#goals", label: "Goals" },
         { href: "/leaderboard", label: "Leaderboard" },
       ];
     }
@@ -210,7 +213,7 @@ export default function AppNavbar() {
               );
             })}
             
-            {isAuthenticated && !isDashboardRoute && (
+            {isAuthenticated && (
               <Link
                 href="/dashboard/settings"
                 className="rounded-xl px-4 py-3.5 text-sm font-medium text-[var(--muted-foreground)] hover:bg-white/5 transition-colors"
@@ -229,32 +232,20 @@ export default function AppNavbar() {
                   <ThemeToggle variant="compact" />
                 </div>
               )}
-              {isAuthenticated ? (
-                !isDashboardRoute && (
-                  <div className="flex flex-col gap-3">
-                    <p className="px-4 py-2 text-[12px] text-[var(--muted-foreground)]" style={{ fontFamily: MONO }}>
-                      Logged in as <span className="font-semibold text-[var(--foreground)]">@{identityLabel}</span>
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => signOut({ callbackUrl: "/" })}
-                      className="w-full rounded-xl bg-red-500/10 px-4 py-3.5 text-left text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20"
-                      style={{ fontFamily: MONO }}
-                    >
-                      Sign out →
-                    </button>
-                  </div>
-                )
-              ) : (
-                !isPublicProfileRoute && (
-                  <Link
-                    href="/api/auth/signin/github?callbackUrl=/dashboard"
-                    className="block w-full rounded-xl px-4 py-3.5 text-center text-sm font-semibold text-[var(--accent-foreground)] shadow-lg"
-                    style={{ background: "var(--accent)", fontFamily: MONO }}
+              {isAuthenticated && (
+                <div className="flex flex-col gap-3">
+                  <p className="px-4 py-2 text-[12px] text-[var(--muted-foreground)]" style={{ fontFamily: MONO }}>
+                    Logged in as <span className="font-semibold text-[var(--foreground)]">@{identityLabel}</span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="w-full rounded-xl bg-red-500/10 px-4 py-3.5 text-left text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20"
+                    style={{ fontFamily: MONO }}
                   >
-                    SIGN IN →
-                  </Link>
-                )
+                    Sign out →
+                  </button>
+                </div>
               )}
             </div>
           </div>
