@@ -59,6 +59,9 @@ export function useGoalTracker() {
 
   const loadGoals = useCallback(async () => {
     const response = await fetch("/api/goals");
+    if (!response.ok) {
+      throw new Error(`Failed to load goals (HTTP ${response.status})`);
+    }
     const data: { goals: Goal[] } = await response.json();
     const fetchedGoals = data.goals ?? [];
     setGoals(fetchedGoals);
@@ -114,7 +117,9 @@ export function useGoalTracker() {
           await handleSync();
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        setSyncError("Failed to load goals. Please try again.");
+      })
       .finally(() => {
         setLoading(false);
         setLastUpdated(new Date());
@@ -129,7 +134,9 @@ export function useGoalTracker() {
           setLastUpdated(new Date());
           setMinutesAgo(0);
         })
-        .catch(() => {});
+        .catch(() => {
+          setSyncError("Failed to sync goals. Please try again.");
+        });
     };
     window.addEventListener("devtrack:sync", handleSyncEvent);
     return () => window.removeEventListener("devtrack:sync", handleSyncEvent);
@@ -167,7 +174,9 @@ export function useGoalTracker() {
       if (unit === "commits" || unit === "prs") {
         await handleSync();
       } else {
-        await loadGoals().catch(() => {});
+        await loadGoals().catch(() => {
+          setSyncError("Failed to refresh goals after creation.");
+        });
       }
     } catch (e) {
       setCreateError("Failed to create goal. Please try again.");
