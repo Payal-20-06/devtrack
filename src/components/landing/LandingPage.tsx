@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from "next/image";
 import Link from 'next/link';
 import { Activity, GitPullRequest, Goal, Share2, Flame, FolderGit2, LogIn, LayoutDashboard, Target, type LucideIcon } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 /* ═══════════════════════════════════════════════════════════
    PUBLIC TYPES
@@ -618,7 +619,8 @@ function HeroSection() {
       </div>
 
       {/* Right: bento window frame */}
-      <div style={{ flex: '1 1 340px', display: 'flex', justifyContent: 'center', position: 'relative', zIndex: 2 }}>
+      <div style={{ flex: '1 1 340px', display: 'flex', flexDirection: 'column',alignItems: 'flex-end', gap: 24, position: 'relative', zIndex: 2 }}>
+        <ThemeToggle />
         <div style={{
           background: 'rgba(255,255,255,0.02)',
           border: '1px solid rgba(255,255,255,0.05)',
@@ -642,7 +644,12 @@ function HeroSection() {
           </div>
           {/* Bento Content */}
           <div style={{ padding: 20 }}>
-            <BentoGrid />
+          646 <div
+  style={{
+    width: '100%',
+    maxWidth: 380,
+  }}
+><BentoGrid /></div>
           </div>
         </div>
       </div>
