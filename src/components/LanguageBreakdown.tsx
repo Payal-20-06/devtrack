@@ -190,8 +190,12 @@ export default function LanguageBreakdown() {
                 className="flex items-center gap-2 text-sm"
               >
                 <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: getColor(lang.name) }}
+                  className="h-3 w-3 shrink-0 rounded-full"
+                  style={{
+                    backgroundColor: getColor(lang.name),
+                    minWidth: "12px",
+                    minHeight: "12px",
+                  }}
                   role="img"
                   aria-label={lang.name}
                 />
