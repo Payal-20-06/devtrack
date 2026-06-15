@@ -20,6 +20,8 @@ interface PRMetricsBase {
   merged: number;
   closed: number;
   total: number;
+  totalAdditions: number;
+  totalDeletions: number;
   avgReviewHours: number;
   avgFirstReviewHours: number | null;
   mergeRate: number;
@@ -60,6 +62,8 @@ interface ReviewCommentEvent {
 
 interface GraphQLPullRequestNode {
   createdAt: string;
+  additions: number;
+  deletions: number;
   reviews: {
     nodes: { submittedAt: string }[];
   };
@@ -107,7 +111,7 @@ async function fetchFirstReviewTimestamp(
     Authorization: `Bearer ${token}`,
     Accept: "application/vnd.github+json",
   };
-  
+
   const [reviewsRes, commentsRes] = await Promise.all([
     fetch(`${GITHUB_API}/repos/${repo}/pulls/${pr.number}/reviews?per_page=100`, { headers, cache: "no-store" }),
     fetch(`${GITHUB_API}/repos/${repo}/pulls/${pr.number}/comments?per_page=100`, { headers, cache: "no-store" }),
@@ -190,7 +194,7 @@ async function fetchPRMetrics(
   const mergedPRs = data.items.filter((pr) => pr.pull_request?.merged_at != null);
   const merged = mergedPRs.length;
   const closed = data.items.filter((pr) => pr.state === "closed" && pr.pull_request?.merged_at == null).length;
-  
+
   const avgReviewMs = mergedPRs.length > 0
     ? mergedPRs.reduce((sum, pr) => sum + (new Date(pr.closed_at!).getTime() - new Date(pr.created_at).getTime()), 0) / mergedPRs.length
     : 0;
@@ -218,6 +222,8 @@ async function fetchPRMetrics(
         nodes {
           ... on PullRequest {
             createdAt
+            additions
+            deletions
             reviews(first: 1) { nodes { submittedAt } }
             repository { nameWithOwner }
           }
@@ -238,6 +244,15 @@ async function fetchPRMetrics(
 
   const gqlJson = (await gqlRes.json()) as GraphQLSearchResponse;
   const prs = gqlJson.data?.search?.nodes ?? [];
+  const totalAdditions = prs.reduce(
+    (sum, pr) => sum + (pr.additions || 0),
+    0
+  );
+
+  const totalDeletions = prs.reduce(
+    (sum, pr) => sum + (pr.deletions || 0),
+    0
+  );
 
   const reviewedPRs = prs.filter((pr) => pr.reviews?.nodes && pr.reviews.nodes.length > 0);
 
@@ -256,7 +271,7 @@ async function fetchPRMetrics(
     if (!weeklyMap[ct.week]) weeklyMap[ct.week] = [];
     weeklyMap[ct.week].push(ct.hours);
   });
-  
+
   const weeklyTrend = Object.entries(weeklyMap).map(([week, times]) => ({
     week,
     avgHours: Math.round(times.reduce((a, b) => a + b, 0) / times.length),
@@ -267,7 +282,7 @@ async function fetchPRMetrics(
     if (!repoMap[ct.repo]) repoMap[ct.repo] = [];
     repoMap[ct.repo].push(ct.hours);
   });
-  
+
   const slowestRepos = Object.entries(repoMap)
     .map(([repo, times]) => ({ repo, avgHours: Math.round(times.reduce((a, b) => a + b, 0) / times.length) }))
     .sort((a, b) => b.avgHours - a.avgHours)
@@ -278,6 +293,8 @@ async function fetchPRMetrics(
     merged,
     closed,
     total: data.total_count,
+    totalAdditions,
+    totalDeletions,
     avgReviewHours: Math.round(avgReviewMs / 3600000),
     avgFirstReviewHours,
     mergeRate: sampleTotal > 0 ? merged / sampleTotal : 0,
@@ -369,6 +386,8 @@ async function fetchGitLabMRMetrics(token: string): Promise<PRMetricsBase> {
     merged,
     closed,
     total: totalCount ?? sampleTotal,
+    totalAdditions: 0,
+    totalDeletions: 0,
     avgReviewHours: Math.round(avgReviewMs / 3600000),
     avgFirstReviewHours: null,
     mergeRate: sampleTotal > 0 ? merged / sampleTotal : 0,
@@ -422,6 +441,8 @@ function formatPRMetrics(metrics: PRMetricsBase) {
     avgCycleTime: metrics.avgCycleTime,
     weeklyTrend: metrics.weeklyTrend,
     slowestRepos: metrics.slowestRepos,
+    totalAdditions: metrics.totalAdditions,
+    totalDeletions: metrics.totalDeletions,
   };
 }
 
@@ -510,7 +531,7 @@ export async function GET(req: NextRequest) {
   const gitlabToken = typeof session.gitlabToken === "string" ? session.gitlabToken : undefined;
   const accountId = req.nextUrl.searchParams.get("accountId");
   const bypass = isMetricsCacheBypassed(req);
-  
+
   const gitlabCacheContext = {
     bypass,
     userId: session.githubId ?? session.githubLogin ?? "primary",
@@ -560,12 +581,12 @@ export async function GET(req: NextRequest) {
         orgName,
         excludedOrgs
       );
-      
+
       const [gitlab, reviews] = await Promise.all([
         getGitLabMetrics(gitlabToken, gitlabCacheContext),
         fetchReviewMetrics(session.accessToken).catch(() => null),
       ]);
-      
+
       return Response.json({ ...formatPRMetricsResponse(result, gitlab), reviews });
     } catch {
       // Catches errors from fetchCachedPRMetrics (GitHub Search API failures).
@@ -631,7 +652,7 @@ export async function GET(req: NextRequest) {
           weeklyTrendsMap[wt.week].push(wt.avgHours);
         });
       });
-      
+
       const combinedWeeklyTrend = Object.entries(weeklyTrendsMap).map(([week, hoursArray]) => ({
         week,
         avgHours: Math.round(hoursArray.reduce((a, b) => a + b, 0) / hoursArray.length)
@@ -643,6 +664,15 @@ export async function GET(req: NextRequest) {
         .slice(0, 3);
 
       const combinedMetrics: PRMetricsBase = {
+        totalAdditions: results.reduce(
+          (sum, r) => sum + r.totalAdditions,
+          0
+        ),
+
+        totalDeletions: results.reduce(
+          (sum, r) => sum + r.totalDeletions,
+          0
+        ),
         open: combinedOpen,
         merged: combinedMerged,
         closed: combinedClosed,
@@ -659,7 +689,7 @@ export async function GET(req: NextRequest) {
         getGitLabMetrics(gitlabToken, gitlabCacheContext),
         fetchReviewMetrics(session.accessToken).catch(() => null),
       ]);
-      
+
       return Response.json({ ...formatPRMetricsResponse(combinedMetrics, gitlab), reviews });
     } catch {
       return Response.json({ error: "Failed to compile combined profile metrics" }, { status: 502 });
@@ -696,12 +726,12 @@ export async function GET(req: NextRequest) {
       orgName,
       excludedOrgs
     );
-    
+
     const [gitlab, reviews] = await Promise.all([
       getGitLabMetrics(gitlabToken, gitlabCacheContext),
       fetchReviewMetrics(session.accessToken).catch(() => null),
     ]);
-    
+
     return Response.json({ ...formatPRMetricsResponse(result, gitlab), reviews });
   } catch (e) {
     return Response.json({ error: "GitHub API error" }, { status: 502 });

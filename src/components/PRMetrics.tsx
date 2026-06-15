@@ -12,6 +12,8 @@ interface PRMetricsSummary {
   merged: number;
   closed: number;
   total: number;
+  totalAdditions?: number;
+  totalDeletions?: number;
   avgReviewHours: number;
   avgFirstReviewHours: number | null;
   mergeRate: string;
@@ -104,6 +106,10 @@ export default function PRMetrics() {
     const baseStats: PRStat[] = [
       { label: labels.open, value: source.open },
       { label: labels.merged, value: source.merged },
+      {
+        label: "Lines Changed",
+        value: `+${(source.totalAdditions ?? 0).toLocaleString()} / -${(source.totalDeletions ?? 0).toLocaleString()}`
+      },
       { label: labels.avgReview, value: `${source.avgReviewHours}h` },
       {
         label: labels.avgFirstReview,
@@ -215,7 +221,7 @@ export default function PRMetrics() {
           <span className="sr-only">Loading PR analytics</span>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+            {[1, 2, 3, 4, 5, 6,7].map((i) => (
               <div
                 key={i}
                 aria-hidden="true"
@@ -346,7 +352,7 @@ export default function PRMetrics() {
           </div>
         </div>
       )}
-      
+
       {lastUpdated && (
         <p className="text-xs text-[var(--muted-foreground)] mt-2 text-right">
           {minutesAgo === 0 ? "Updated just now" : `Updated ${minutesAgo} min ago`}
