@@ -23,6 +23,8 @@ import ExportButton from "@/components/ExportButton";
 import PersonalRecords from "@/components/PersonalRecords";
 import SponsorAnalytics from "@/components/SponsorAnalytics";
 import WidgetErrorBoundary from "@/components/WidgetErrorBoundary";
+import LazyWidget from "@/components/LazyWidget";
+import { Skeleton } from "@/components/Skeleton";
 
 function DashboardWidgets() { return (
     <>
@@ -108,33 +110,43 @@ function DashboardWidgets() { return (
 
       {/* Row 3 */}
       <div className="mt-6">
-        <WidgetErrorBoundary>
-          <IssueMetrics />
-        </WidgetErrorBoundary>
+        <LazyWidget fallback={<Skeleton className="h-48 w-full" />}>
+          <WidgetErrorBoundary>
+            <IssueMetrics />
+          </WidgetErrorBoundary>
+        </LazyWidget>
       </div>
 
       
 
       {/* Row 4 */}
       <div className="mt-6">
-        <WidgetErrorBoundary>
-          <PinnedRepos />
-        </WidgetErrorBoundary>
+        <LazyWidget fallback={<Skeleton className="h-48 w-full" />}>
+          <WidgetErrorBoundary>
+            <PinnedRepos />
+          </WidgetErrorBoundary>
+        </LazyWidget>
       </div>
 
       {/* Row 5 */}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <WidgetErrorBoundary>
-          <TopRepos />
-        </WidgetErrorBoundary>
+        <LazyWidget fallback={<Skeleton className="h-48 w-full" />}>
+          <WidgetErrorBoundary>
+            <TopRepos />
+          </WidgetErrorBoundary>
+        </LazyWidget>
 
-        <WidgetErrorBoundary>
-          <LanguageBreakdown />
-        </WidgetErrorBoundary>
+        <LazyWidget fallback={<Skeleton className="h-48 w-full" />}>
+          <WidgetErrorBoundary>
+            <LanguageBreakdown />
+          </WidgetErrorBoundary>
+        </LazyWidget>
 
-        <WidgetErrorBoundary>
-          <GoalTracker />
-        </WidgetErrorBoundary>
+        <LazyWidget fallback={<Skeleton className="h-48 w-full" />}>
+          <WidgetErrorBoundary>
+            <GoalTracker />
+          </WidgetErrorBoundary>
+        </LazyWidget>
       </div>
     </>
   );
