@@ -140,28 +140,30 @@ async function buildInsightsForAccount(
 export async function GET(req: NextRequest) {
   const sessionData = await getSessionWithToken();
 
-  if (!sessionData || !sessionData.session.githubLogin) {
+  if (!sessionData || !sessionData.session.githubLogin || !sessionData.session.githubId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  if (session.error === "TokenRevoked") {
-    return githubAuthErrorResponse();
   }
 
   const session = sessionData.session;
   const accessToken = sessionData.accessToken;
+  const githubLogin = session.githubLogin as string;
+  const githubId = session.githubId as string;
+
+  if (session.error === "TokenRevoked") {
+    return githubAuthErrorResponse();
+  }
 
   const accountId = req.nextUrl.searchParams.get("accountId");
   const timeZone = getRequestedTimeZone(req);
   const bypass = isMetricsCacheBypassed(req);
-  const cacheUserId = session.githubId ?? session.githubLogin;
 
   if (!accountId) {
     try {
       const data = await buildInsightsForAccount(
         accessToken,
-        session.githubLogin,
+        githubLogin,
         timeZone,
-        { bypass, userId: cacheUserId! }
+        { bypass, userId: githubId }
       );
 
       return Response.json(data);
@@ -170,11 +172,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  if (!session.githubId) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  const userRow = await resolveAppUser(githubId, githubLogin);
   if (!userRow) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -184,8 +182,8 @@ export async function GET(req: NextRequest) {
       const accounts = await getAllAccounts(
         {
           token: accessToken,
-          githubId: session.githubId,
-          githubLogin: session.githubLogin,
+          githubId,
+          githubLogin,
         },
         userRow.id
       );
@@ -215,12 +213,12 @@ export async function GET(req: NextRequest) {
       return Response.json(data);
     }
 
-    if (accountId === session.githubId) {
+    if (accountId === githubId) {
       const data = await buildInsightsForAccount(
         accessToken,
-        session.githubLogin,
+        githubLogin,
         timeZone,
-        { bypass, userId: session.githubId }
+        { bypass, userId: githubId }
       );
 
       return Response.json(data);

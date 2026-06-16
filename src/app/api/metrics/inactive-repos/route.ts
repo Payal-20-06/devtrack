@@ -128,15 +128,18 @@ async function fetchInactiveReposForAccount(
 export async function GET(req: NextRequest) {
   const sessionData = await getSessionWithToken();
 
-  if (!sessionData || !sessionData.session.githubLogin) {
+  if (!sessionData || !sessionData.session.githubLogin || !sessionData.session.githubId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  if (session.error === "TokenRevoked") {
-    return githubAuthErrorResponse();
   }
 
   const session = sessionData.session;
   const accessToken = sessionData.accessToken;
+  const githubLogin = session.githubLogin as string;
+  const githubId = session.githubId as string;
+
+  if (session.error === "TokenRevoked") {
+    return githubAuthErrorResponse();
+  }
 
   const thresholdDays = parseThreshold(req.nextUrl.searchParams.get("days"));
   const accountId = req.nextUrl.searchParams.get("accountId");
@@ -146,9 +149,9 @@ export async function GET(req: NextRequest) {
     try {
       const result = await fetchInactiveReposForAccount(
         accessToken,
-        session.githubLogin,
+        githubLogin,
         thresholdDays,
-        { bypass, userId: session.githubId ?? session.githubLogin! }
+        { bypass, userId: githubId }
       );
 
       return Response.json(result);
@@ -158,11 +161,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  if (!session.githubId) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  const userRow = await resolveAppUser(githubId, githubLogin);
 
   if (!userRow) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -172,8 +171,8 @@ export async function GET(req: NextRequest) {
     const accounts = await getAllAccounts(
       {
         token: accessToken,
-        githubId: session.githubId,
-        githubLogin: session.githubLogin,
+        githubId,
+        githubLogin,
       },
       userRow.id
     );
@@ -199,13 +198,13 @@ export async function GET(req: NextRequest) {
     return Response.json(merged);
   }
 
-  if (accountId === session.githubId) {
+  if (accountId === githubId) {
     try {
       const result = await fetchInactiveReposForAccount(
         accessToken,
-        session.githubLogin,
+        githubLogin,
         thresholdDays,
-        { bypass, userId: session.githubId }
+        { bypass, userId: githubId }
       );
 
       return Response.json(result);
