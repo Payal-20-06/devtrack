@@ -730,7 +730,18 @@ function SettingsPageContent() {
               placeholder="Write a short bio with **bold**, _italic_, `code`, or links."
               className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-sm text-[var(--card-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
             />
-
+<div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--control)]">
+  <div
+    className={`h-full transition-all ${
+      bioDraft.length >= 490
+        ? "bg-red-500"
+        : bioDraft.length >= 450
+        ? "bg-yellow-500"
+        : "bg-[var(--accent)]"
+    }`}
+    style={{ width: `${(bioDraft.length / 500) * 100}%` }}
+  />
+</div>
             {showBioPreview && (
               <div className="mt-3 min-h-[128px] rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-[var(--card-foreground)]">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
@@ -746,17 +757,34 @@ function SettingsPageContent() {
               </div>
             )}
 
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-              <span
-                className={`text-xs ${
-                  bioDraft.length > 500
-                    ? "text-[var(--error)]"
-                    : "text-[var(--muted-foreground)]"
-                }`}
-              >
-                {bioDraft.length}/500 characters
-              </span>
-              <button
+           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <span
+      className={`text-xs ${
+        bioDraft.length >= 490
+          ? "text-red-500"
+          : bioDraft.length >= 450
+          ? "text-yellow-500"
+          : "text-[var(--muted-foreground)]"
+      }`}
+    >
+      {bioDraft.length}/500 characters
+    </span>
+
+    {bioDraft.length >= 450 && (
+      <p
+        className={`mt-1 text-xs ${
+          bioDraft.length >= 490
+            ? "text-red-500"
+            : "text-yellow-500"
+        }`}
+      >
+        You are approaching the 500 character limit.
+      </p>
+    )}
+  </div>
+
+  <button
                 type="button"
                 onClick={handleSaveBio}
                 disabled={
