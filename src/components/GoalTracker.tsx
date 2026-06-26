@@ -433,15 +433,16 @@ export default function GoalTracker() {
         <div role="status" aria-live="polite" aria-busy="true">
           <span className="sr-only">Loading weekly goals</span>
           <div
-            aria-hidden="true"
-            className="mb-4 h-5 w-32 rounded bg-[var(--card-muted)] animate-pulse"
-          />
-          {[1, 2, 3].map((i) => (
-            <div key={i} aria-hidden="true" className="mb-4">
-              <div className="h-4 bg-[var(--card-muted)] rounded animate-pulse mb-2" />
-              <div className="h-2 bg-[var(--card-muted)] rounded animate-pulse" />
-            </div>
-          ))}
+             aria-hidden="true"
+           className="mb-5 h-6 w-36 rounded bg-[var(--card-muted)] animate-pulse"
+            />
+             {[1, 2, 3].map((i) => (
+              <div key={i} aria-hidden="true" className="mb-5 space-y-3">
+               <div className="h-6 rounded bg-[var(--card-muted)] animate-pulse" />
+               <div className="h-4 rounded bg-[var(--card-muted)] animate-pulse" />
+               <div className="h-3 rounded bg-[var(--card-muted)] animate-pulse" />
+           </div>
+        ))}
         </div>
       </div>
     );
